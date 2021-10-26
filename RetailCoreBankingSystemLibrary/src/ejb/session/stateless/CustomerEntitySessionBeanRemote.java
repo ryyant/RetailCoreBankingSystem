@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Customer;
 import javax.ejb.Remote;
+import util.exception.DuplicateException;
 
 /**
  *
@@ -15,5 +16,5 @@ import javax.ejb.Remote;
 @Remote
 public interface CustomerEntitySessionBeanRemote {
     
-    public long createNewCustomer(Customer customer);
+    public long createNewCustomer(Customer customer) throws DuplicateException;
 }

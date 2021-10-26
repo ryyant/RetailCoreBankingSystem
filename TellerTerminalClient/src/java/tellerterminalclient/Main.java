@@ -20,6 +20,7 @@ import java.util.Scanner;
 import javax.ejb.EJB;
 import util.enumeration.TransactionType;
 import util.exception.CustomerNotFoundException;
+import util.exception.DuplicateException;
 
 /**
  *
@@ -46,8 +47,9 @@ public class Main {
             System.out.println("*** What would you like to do? ***\n");
             System.out.println("*** 1. Register ***\n");
             System.out.println("*** 2. Open Account ***\n");
-            System.out.println("*** 3. Get ATM Card ***\n");
-            System.out.println("*** 4. Exit ***\n");
+            System.out.println("*** 3. Issue ATM Card ***\n");
+            System.out.println("*** 4. Issue Replacement ATM Card ***\n");
+            System.out.println("*** 5. Exit ***\n");
             int response = scanner.nextInt();
             scanner.nextLine();
             
@@ -68,8 +70,12 @@ public class Main {
                     System.out.println("*** What is your nric? ***\n");
                     String nricInput = scanner.nextLine().trim();
                     Customer customer = new Customer(firstNameInput, lastNameInput, nricInput, contactNumberInput, address1Input, address2Input, postalCodeInput);
-                    customerEntitySessionBeanRemote.createNewCustomer(customer);
-                    System.out.println("Customer successfully created!\n");
+                    try {
+                        customerEntitySessionBeanRemote.createNewCustomer(customer);
+                        System.out.println("Customer successfully created!\n");
+                    } catch (DuplicateException ex) {
+                        System.out.println(ex.getMessage() + "\n");
+                    }
                     break;
                 case 2:
                     {
@@ -94,7 +100,7 @@ public class Main {
                         Date currentDate = new Date();
                         DepositAccountTransaction initialTransaction = new DepositAccountTransaction(currentDate, bigAmount, transType);
                         //generate random number
-                        String accountNumber = Integer.toString((int)(Math.floor(Math.random()*10000 + 100000)));
+                        String accountNumber = Integer.toString((int)(Math.floor(Math.random()*1000)));
                         DepositAccount depositAccount = new DepositAccount(accountNumber);
                         
                         try {
@@ -129,16 +135,29 @@ public class Main {
                             }
                         }       
                         //generate random number
-                        String cardNumber = Integer.toString((int)(Math.floor(Math.random()*10000 + 100000)));
+                        String cardNumber = Integer.toString((int)(Math.floor(Math.random()*1000)));
                         AtmCard atmCard = new AtmCard(cardNumber, pinNumber, nameOnCard);
                         try {
                             atmCardEntitySessionBeanRemote.issueAtmCard(idNumber, atmCard, accountsToLink);
                             System.out.println("ATM Card issued!");
+                        } catch (CustomerNotFoundException | DuplicateException ex) {
+                            System.out.println(ex.getMessage() + "\n");
+                        }
+                        break;
+                    }
+                    case 4:
+                    {
+                        System.out.println("*** What is your identification number? ***\n");
+                        String idNumber = scanner.nextLine().trim();   
+                        try {
+                            atmCardEntitySessionBeanRemote.issueReplacement(idNumber);
+                            System.out.println("Replacement ATM Card issued!");
                         } catch (CustomerNotFoundException ex) {
                             System.out.println(ex.getMessage() + "\n");
                         }
                         break;
                     }
+                    
                 default:
                     break OUTER;
             }

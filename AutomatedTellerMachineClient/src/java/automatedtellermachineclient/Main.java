@@ -27,16 +27,17 @@ public class Main {
         OUTER:
         while (true) {
             System.out.println("*** Automated Teller Machine ***\n");
-            System.out.println("*** INSERT ATM CARD ***\n");
-            System.out.println("*** Enter ATM Card Number: ***\n");
-            String cardNumberInput = scanner.nextLine().trim();
 
-            Long cardId = Long.valueOf(0);
+
+            String cardNumberInput = "";
             while (true) {
                 try {
+                    System.out.println("*** INSERT ATM CARD ***\n");
+                    System.out.println("*** Enter ATM Card Number: ***\n");
+                    cardNumberInput = scanner.nextLine().trim();
                     System.out.println("*** Enter Pin: ***\n");
                     String pinInput = scanner.nextLine().trim();
-                    cardId = atmCardEntitySessionBeanRemote.insertAtmCard(cardNumberInput, pinInput);
+                    Long cardId = atmCardEntitySessionBeanRemote.insertAtmCard(cardNumberInput, pinInput);
                     System.out.println("*** Inserted! ***\n");
                     break;
                 } 
@@ -49,35 +50,38 @@ public class Main {
                     }
                 }
             }
- 
-            System.out.println("*** What would you like to do? ***\n");
-            System.out.println("*** 1. Change Pin ***\n");
-            System.out.println("*** 2. Check Balance ***\n");
-            System.out.println("*** 3. Exit ***\n");
-            int response = scanner.nextInt();
-            scanner.nextLine();
             
-            switch (response) {
-                case 1:
-                    System.out.println("*** CHANGE ATM CARD PIN ***\n");
-                    System.out.println("*** Enter New Pin: ***\n");
-                    String newPinInput = scanner.nextLine().trim();
-                    atmCardEntitySessionBeanRemote.changeAtmCardPin(cardId, newPinInput);
-                    System.out.println("Pin successfully changed!\n");
-                    break;
-                case 2:
-                    System.out.println("*** CHECK ACCOUNT BALANCE ***\n");
-                    System.out.println("*** Enter account to check: ***\n");
-                    String accountNumberInput = scanner.nextLine().trim();
-                    try {
-                        System.out.println(atmCardEntitySessionBeanRemote.checkBalance(accountNumberInput));
-                    } catch(InvalidAccountException ex) {
-                        System.out.println(ex.getMessage() + "\n");
-                    }
-                    break;
-                default:
-                    break OUTER;
+            while (true) {
+                System.out.println("*** What would you like to do? ***\n");
+                System.out.println("*** 1. Change Pin ***\n");
+                System.out.println("*** 2. Check Balance ***\n");
+                System.out.println("*** 3. Exit ***\n");
+                int response = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (response) {
+                    case 1:
+                        System.out.println("*** CHANGE ATM CARD PIN ***\n");
+                        System.out.println("*** Enter New Pin: ***\n");
+                        String newPinInput = scanner.nextLine().trim();
+                        atmCardEntitySessionBeanRemote.changeAtmCardPin(cardNumberInput, newPinInput);
+                        System.out.println("Pin successfully changed!\n");
+                        break;
+                    case 2:
+                        System.out.println("*** CHECK ACCOUNT BALANCE ***\n");
+                        System.out.println("*** Enter account to check: ***\n");
+                        String accountNumberInput = scanner.nextLine().trim();
+                        try {
+                            System.out.println(atmCardEntitySessionBeanRemote.checkBalance(accountNumberInput));
+                        } catch(InvalidAccountException ex) {
+                            System.out.println(ex.getMessage() + "\n");
+                        }
+                        break;
+                    default:
+                        break OUTER;
+                }    
             }
+            
         }
     
         

@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.Customer;
 import javax.ejb.Local;
+import util.exception.DuplicateException;
 
 /**
  *
@@ -15,6 +16,6 @@ import javax.ejb.Local;
 @Local
 public interface CustomerEntitySessionBeanLocal {
 
-    public long createNewCustomer(Customer customer);
+    public long createNewCustomer(Customer customer) throws DuplicateException;
     
 }

@@ -9,6 +9,7 @@ import entity.AtmCard;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.CustomerNotFoundException;
+import util.exception.DuplicateException;
 import util.exception.InvalidAccountException;
 import util.exception.InvalidPinException;
 
@@ -21,9 +22,11 @@ public interface AtmCardEntitySessionBeanLocal {
 
     public long insertAtmCard(String cardNumber, String pin) throws InvalidPinException;
 
-    public long changeAtmCardPin(Long cardId, String newPin);
+    public void changeAtmCardPin(String cardNumber, String newPin);
 
-    public long issueAtmCard(String identificationNumber, AtmCard atmCard, List<String> accountsToLink) throws CustomerNotFoundException;
+    public long issueAtmCard(String identificationNumber, AtmCard atmCard, List<String> accountsToLink) throws CustomerNotFoundException, DuplicateException;
+    
+    public long issueReplacement(String idNumber) throws CustomerNotFoundException;
     
     public String checkBalance(String accountNumber) throws InvalidAccountException;
 
