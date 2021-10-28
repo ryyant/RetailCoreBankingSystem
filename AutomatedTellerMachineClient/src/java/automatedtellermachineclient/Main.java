@@ -72,7 +72,7 @@ public class Main {
                         System.out.println("*** Enter account to check: ***\n");
                         String accountNumberInput = scanner.nextLine().trim();
                         try {
-                            System.out.println(atmCardEntitySessionBeanRemote.checkBalance(accountNumberInput));
+                            System.out.println(atmCardEntitySessionBeanRemote.checkBalance(cardNumberInput, accountNumberInput));
                         } catch(InvalidAccountException ex) {
                             System.out.println(ex.getMessage() + "\n");
                         }

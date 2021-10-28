@@ -28,6 +28,6 @@ public interface AtmCardEntitySessionBeanLocal {
     
     public long issueReplacement(String idNumber) throws CustomerNotFoundException;
     
-    public String checkBalance(String accountNumber) throws InvalidAccountException;
+    public String checkBalance(String cardNumber, String accountNumber) throws InvalidAccountException;
 
 }

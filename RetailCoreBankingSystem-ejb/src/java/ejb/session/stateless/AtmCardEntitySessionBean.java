@@ -9,6 +9,7 @@ import entity.AtmCard;
 import entity.Customer;
 import entity.DepositAccount;
 import java.util.List;
+import java.util.Objects;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,8 +38,8 @@ public class AtmCardEntitySessionBean implements AtmCardEntitySessionBeanRemote,
                     .getSingleResult();
             
             // check if already got card.
-            if (customer.getAtmCard() != null) {               
-                throw new DuplicateException("Already have a card!");
+            if (customer.getAtmCard() != null) {
+                throw new DuplicateException();
             }     
             
             atmCard.setCustomer(customer);
@@ -51,6 +52,11 @@ public class AtmCardEntitySessionBean implements AtmCardEntitySessionBeanRemote,
                     .setParameter(1, acc)
                     .getSingleResult();
                 
+                // check if account is not his, so CANNOT link to atmCard
+                if (!Objects.equals(depAccount.getCustomer().getCustomerId(), customer.getCustomerId())) {
+                    throw new Exception();
+                }
+                
                 atmCard.getDepositAccounts().add(depAccount);
                 depAccount.setAtmCard(atmCard);
             }
@@ -60,10 +66,10 @@ public class AtmCardEntitySessionBean implements AtmCardEntitySessionBeanRemote,
             return atmCard.getAtmCardId();
         }
         catch (DuplicateException d) {
-            throw d;
+            throw new DuplicateException("Already have a card!");
         }
         catch (Exception e) {
-            throw new CustomerNotFoundException("Customer / Accounts not registered!");
+            throw new CustomerNotFoundException("Customer not registered / Account can't be linked!");
         }
     }
     
@@ -137,19 +143,27 @@ public class AtmCardEntitySessionBean implements AtmCardEntitySessionBeanRemote,
     }
     
     @Override
-    public String checkBalance(String accountNumber) throws InvalidAccountException
+    public String checkBalance(String cardNumber, String accountNumber) throws InvalidAccountException
     {
         try
         {
-            DepositAccount account = (DepositAccount) em.createQuery("SELECT a from DepositAccount a WHERE a.accountNumber LIKE ?1")
+            AtmCard atmCard = (AtmCard) em.createQuery("SELECT a from AtmCard a WHERE a.cardNumber LIKE ?1")
+                    .setParameter(1, cardNumber)
+                    .getSingleResult();
+            
+            DepositAccount account = (DepositAccount) em.createQuery("SELECT d from DepositAccount d WHERE d.accountNumber LIKE ?1")
                     .setParameter(1, accountNumber)
                     .getSingleResult();
- 
+            
+            if (!Objects.equals(account.getAtmCard().getAtmCardId(), atmCard.getAtmCardId())) {
+                throw new InvalidAccountException();
+            }
+
             return "Available Balance: " + account.getAvailableBalance();            
         }
         catch(Exception e)
         {
-            throw new InvalidAccountException("Account number invalid!");
+            throw new InvalidAccountException("Account number invalid! (Does not exist / Not linked to AtmCard)");
         }
     }
  
